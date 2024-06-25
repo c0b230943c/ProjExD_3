@@ -159,14 +159,7 @@ def main():
                 # スペースキー押下でBeamクラスのインスタンス生成
                 beam = Beam(bird)            
         screen.blit(bg_img, [0, 0])
-        for i in range(len(bombs)):
-            if beam is not None:
-                if bombs[i] is not None:
-                    if bombs[i].rct.colliderect(beam.rct):
-                        bombs[i] = None
-                        beam = None
-                        bird.change_img(6,screen)
-        bombs = [bomb for bomb in bombs if bomb is not None]
+
         for bomb in bombs:
             if bomb is not None:
                 if bird.rct.colliderect(bomb.rct):
@@ -179,13 +172,21 @@ def main():
                     time.sleep(5)
                     return
 
+        for i in range(len(bombs)):
+            if beam is not None:
+                if bombs[i] is not None:
+                    if bombs[i].rct.colliderect(beam.rct):
+                        bombs[i] = None
+                        beam = None
+                        bird.change_img(6,screen)
+        bombs = [bomb for bomb in bombs if bomb is not None]
+
         key_lst = pg.key.get_pressed()
         bird.update(key_lst, screen)
-        for bomb in bombs:
-            if beam is not None:
-                beam.update(screen)
-            if bomb is not None:   
-                bomb.update(screen)
+        if beam is not None:
+            beam.update(screen)
+        for bomb in bombs:   
+            bomb.update(screen)
         pg.display.update()
         tmr += 1
         clock.tick(50)
