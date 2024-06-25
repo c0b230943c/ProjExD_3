@@ -141,12 +141,44 @@ class Bomb:
         screen.blit(self.img, self.rct)
 
 
+class Explosion:
+    """
+    爆発エフェクトに関するクラス
+    """
+    img = pg.image.load("fig/explosion.gif")
+    fimg = pg.transform.flip(img,True,True)
+    imgs = [img,fimg]
+    def __init__(self,bomb:Bomb):
+        """
+        爆発の画像のサーフェイスを作成
+        反転させたものと合わせたリストを作る。
+        エフェクトの座標を爆発した爆弾の座標に設定
+        表示時間を設定
+        引数 bomb:爆発した爆弾のrect
+        """
+        self.imgs = __class__.imgs
+        self.rct = self.imgs[0].get_rect()
+        self.rct.center = bomb.rct.center
+        self.life = 30
+        self.index = 0
+
+    def update(self,screen:pg.Surface):
+        self.life -= 1
+        if self.life >= 0:
+            screen.blit(self.imgs[self.index],self.rct)
+            if self.index == 0:
+                self.index = 1
+            else:
+                self.index = 0
+    
+
 def main():
     pg.display.set_caption("たたかえ！こうかとん")
     screen = pg.display.set_mode((WIDTH, HEIGHT))    
     bg_img = pg.image.load("fig/pg_bg.jpg")
     bird = Bird((300, 200))
     beam = None
+    explosion_list = []
     # bomb = Bomb((255, 0, 0), 10)
     bombs = [Bomb((255, 0, 0), 10) for _ in range(NUM_OF_BOMBS)]
     clock = pg.time.Clock()
@@ -176,10 +208,13 @@ def main():
             if beam is not None:
                 if bombs[i] is not None:
                     if bombs[i].rct.colliderect(beam.rct):
+                        explosion_list.append(Explosion(bombs[i]))
                         bombs[i] = None
                         beam = None
                         bird.change_img(6,screen)
+
         bombs = [bomb for bomb in bombs if bomb is not None]
+        explosion_list = [exp for exp in explosion_list if exp.life >= 0]
 
         key_lst = pg.key.get_pressed()
         bird.update(key_lst, screen)
@@ -187,6 +222,8 @@ def main():
             beam.update(screen)
         for bomb in bombs:   
             bomb.update(screen)
+        for exp in explosion_list:
+            exp.update(screen)
         pg.display.update()
         tmr += 1
         clock.tick(50)
