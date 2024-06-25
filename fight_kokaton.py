@@ -202,6 +202,7 @@ def main():
     # bomb = Bomb((255, 0, 0), 10)
     bombs = [Bomb((255, 0, 0), 10) for _ in range(NUM_OF_BOMBS)]
     score = Score(0)
+    beams = []
     clock = pg.time.Clock()
     tmr = 0
     while True:
@@ -210,7 +211,8 @@ def main():
                 return
             if event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
                 # スペースキー押下でBeamクラスのインスタンス生成
-                beam = Beam(bird)            
+                # beam = Beam(bird)
+                beams.append(Beam(bird))            
         screen.blit(bg_img, [0, 0])
 
         for bomb in bombs:
@@ -225,23 +227,26 @@ def main():
                     time.sleep(5)
                     return
 
-        for i in range(len(bombs)):
-            if beam is not None:
-                if bombs[i] is not None:
-                    if bombs[i].rct.colliderect(beam.rct):
-                        explosion_list.append(Explosion(bombs[i]))
-                        bombs[i] = None
-                        beam = None
-                        score.score += 1
-                        bird.change_img(6,screen)
+        for j in range(len(beams)):
+            for i in range(len(bombs)):
+                if beams[j] is not None:
+                    if bombs[i] is not None:
+                        if bombs[i].rct.colliderect(beams[j].rct):
+                            explosion_list.append(Explosion(bombs[i]))
+                            bombs[i] = None
+                            beams[j] = None
+                            score.score += 1
+                            bird.change_img(6,screen)
 
         bombs = [bomb for bomb in bombs if bomb is not None]
+        beams = [beam for beam in beams if beam is not None]
         explosion_list = [exp for exp in explosion_list if exp.life >= 0]
 
         key_lst = pg.key.get_pressed()
         bird.update(key_lst, screen)
-        if beam is not None:
-            beam.update(screen)
+        if beams is not None:
+            for beam in beams:
+                beam.update(screen)
         for bomb in bombs:   
             bomb.update(screen)
         score.update(screen)
