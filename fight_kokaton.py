@@ -183,6 +183,11 @@ class Explosion:
         self.index = 0
 
     def update(self,screen:pg.Surface):
+        """
+        爆発エフェクトの表示時間と、表示される向きを管理し
+        initで設定したlife分表示する関数
+        引数 screen: 画面Surface
+        """
         self.life -= 1
         if self.life >= 0:
             screen.blit(self.imgs[self.index],self.rct)
