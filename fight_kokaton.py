@@ -1,3 +1,4 @@
+import math
 import os
 import random
 import sys
@@ -56,6 +57,7 @@ class Bird:
         self.img = __class__.imgs[(+5, 0)]
         self.rct: pg.Rect = self.img.get_rect()
         self.rct.center = xy
+        self.dire = (+5,0)
 
     def change_img(self, num: int, screen: pg.Surface):
         """
@@ -83,6 +85,8 @@ class Bird:
         if not (sum_mv[0] == 0 and sum_mv[1] == 0):
             self.img = __class__.imgs[tuple(sum_mv)]
         screen.blit(self.img, self.rct)
+        if sum_mv != [0,0]:
+            self.dire = sum_mv
 
 
 class Beam:
@@ -94,11 +98,13 @@ class Beam:
         ビーム画像Surfaceを生成する
         引数 bird：ビームを放つこうかとん（Birdインスタンス）
         """
-        self.img = pg.image.load(f"fig/beam.png")
-        self.rct = self.img.get_rect()
-        self.rct.centery = bird.rct.centery  # こうかとんの縦方向の中心座標をビームの縦方向の中心座標に設定
-        self.rct.left = bird.rct.right  # こうかとんの右座標をビームの左座標に設定
-        self.vx, self.vy = +5, 0
+        self.first_img = pg.image.load(f"fig/beam.png")  # 回転後の画像と区別するために、名前変更
+        self.rct = self.first_img.get_rect()
+        self.vx, self.vy = bird.dire[0],bird.dire[1]
+        self.rct.centery = bird.rct.centery + bird.rct.height * self.vy / 5  # こうかとんの縦方向の中心座標をビームの縦方向の中心座標に設定
+        self.rct.centerx = bird.rct.centerx + bird.rct.width * self.vx / 5  # こうかとんの右座標をビームの左座標に設定
+        self.r = math.atan2(-self.vy,self.vx)
+        self.img = pg.transform.rotozoom(self.first_img,math.degrees(self.r),1.0)
 
     def update(self, screen: pg.Surface):
         """
@@ -170,7 +176,7 @@ class Explosion:
                 self.index = 1
             else:
                 self.index = 0
-    
+
 
 def main():
     pg.display.set_caption("たたかえ！こうかとん")
