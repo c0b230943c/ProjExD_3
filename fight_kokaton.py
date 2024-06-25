@@ -147,6 +147,20 @@ class Bomb:
         screen.blit(self.img, self.rct)
 
 
+class Score:
+    def __init__(self, score):
+        self.score = score
+        self.fonto = pg.font.SysFont("hgp創英角ﾎﾟｯﾌﾟ体", 30)
+        self.img = self.fonto.render(f"スコア:{self.score}", 0, (0, 0, 255))
+        self.rct = self.img.get_rect()
+        self.rct.centery = HEIGHT-50
+        self.rct.centerx = 100
+    
+    def update(self, screen: pg.Surface):
+        self.img = self.fonto.render(f"スコア:{self.score}", 0, (0, 0, 255))
+        screen.blit(self.img, self.rct)
+
+
 class Explosion:
     """
     爆発エフェクトに関するクラス
@@ -187,6 +201,7 @@ def main():
     explosion_list = []
     # bomb = Bomb((255, 0, 0), 10)
     bombs = [Bomb((255, 0, 0), 10) for _ in range(NUM_OF_BOMBS)]
+    score = Score(0)
     clock = pg.time.Clock()
     tmr = 0
     while True:
@@ -217,6 +232,7 @@ def main():
                         explosion_list.append(Explosion(bombs[i]))
                         bombs[i] = None
                         beam = None
+                        score.score += 1
                         bird.change_img(6,screen)
 
         bombs = [bomb for bomb in bombs if bomb is not None]
@@ -228,6 +244,7 @@ def main():
             beam.update(screen)
         for bomb in bombs:   
             bomb.update(screen)
+        score.update(screen)
         for exp in explosion_list:
             exp.update(screen)
         pg.display.update()
